@@ -1,47 +1,59 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
+require("dotenv").config();
+const express = require("express");
+const cloudinary = require("cloudinary").v2;
+const cors = require("cors");
+const Multer = require("multer");
+const { PrismaClient } = require('@prisma/client');
 
-const app = express();
-const port = 3000;
 
-// Set up storage with multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Define the folder where images will be stored
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    // Define the filename with the original name and a timestamp to avoid collisions
-    cb(null, Date.now() + path.extname(file.originalname));
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET,
+  });
+
+  async function handleUpload(file) {
+    const res = await cloudinary.uploader.upload(file, {
+      resource_type: "auto",
+    });
+    return res;
   }
+
+const prisma = new PrismaClient();
+const storage = new Multer.memoryStorage();
+const upload = Multer({
+  storage,
 });
 
-const upload = multer({ storage: storage });
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const app = express();
+app.use(cors());
 
-// Route to handle image upload
-app.post('/upload', upload.single('image'), (req, res) => {
-    try {
-      // Check if file was uploaded
-      if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded.' });
-      }
-      // Send a success response
-      res.json({ message: `File uploaded successfully: ${req.file.filename}` });
-    } catch (err) {
-      // Handle any unexpected errors
-      console.error(err);
-      res.status(500).json({ error: 'An error occurred while uploading the file.' });
+app.post("/upload", upload.single("image"), async (req, res) => {
+    const {name,age,div}=req.body
+  try {
+
+    if(req.file)
+    {
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+    var cldRes = await handleUpload(dataURI);
+    console.log(cldRes)
     }
-  });
-  
-  // Check if file was uploaded
 
-// Start the server
+    photoUrl=cldRes?cldRes.url:null
+
+    const add=await prisma.student.create({data:{name,age:parseInt(age),div,photoUrl}})
+    
+    res.status(200).json({message:"Added Successfully",photoUrl});
+  } catch (error) {
+    console.log(error);
+    res.json({
+      message: error.message,
+    });
+  }
+});
+const port = 3000;
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server Listening on ${port}`);
 });
