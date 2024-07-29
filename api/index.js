@@ -29,7 +29,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
-  res.send(`File uploaded successfully: ${req.file.filename}`);
+  res.json(`File uploaded successfully: ${req.file.filename}`);
 });
 
 // Start the server
