@@ -25,12 +25,21 @@ app.use(express.urlencoded({ extended: true }));
 
 // Route to handle image upload
 app.post('/upload', upload.single('image'), (req, res) => {
+    try {
+      // Check if file was uploaded
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded.' });
+      }
+      // Send a success response
+      res.json({ message: `File uploaded successfully: ${req.file.filename}` });
+    } catch (err) {
+      // Handle any unexpected errors
+      console.error(err);
+      res.status(500).json({ error: 'An error occurred while uploading the file.' });
+    }
+  });
+  
   // Check if file was uploaded
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
-  res.json(`File uploaded successfully: ${req.file.filename}`);
-});
 
 // Start the server
 app.listen(port, () => {
