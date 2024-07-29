@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config({ path: '../.env' });
 const express = require("express");
 const cloudinary = require("cloudinary").v2;
 const cors = require("cors");
