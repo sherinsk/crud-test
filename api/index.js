@@ -55,6 +55,32 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     });
   }
 });
+
+app.delete("/delete/:id",async (req,res)=>{
+  const {id}=req.params
+  try
+  {
+    const item=await prisma.student.findUnique({where:{id:parseInt(id)}})
+
+    if(item.cloudinaryPublicId)
+    {
+      await cloudinary.uploader.destroy(item.cloudinaryPublicId)
+    }
+
+    await prisma.student.delete({
+      where: { id: parseInt(id) },
+  });
+
+  res.status(200).json({ message: "Deleted Successfully" });
+  }
+  catch(err)
+  {
+    console.log(err);
+    res.status(500).json({message: err.message})
+  }
+})
+
+
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server Listening on ${port}`);
