@@ -9,12 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")  // Use environment variable for the database URL
 }
 
-model Student {
+model Projects {
   id        Int      @id @default(autoincrement())
-  name      String
-  age       Int
-  div       String
-  photoUrl  String?
+  image      String?
+  heading    String?
+  caption    String?
+  languages  String?
+  url        String?
   cloudinaryPublicId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

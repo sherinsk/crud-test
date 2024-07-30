@@ -42,7 +42,7 @@ app.get("/", async (req,res)=>{
 })
 
 app.post("/upload", upload.single("image"), async (req, res) => {
-    const {name,age,div}=req.body
+    const {heading,caption,languages,url}=req.body
   try {
 
     if(req.file)
@@ -53,13 +53,14 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     console.log(cldRes)
     }
 
-    photoUrl=cldRes?cldRes.url:null
+    image=cldRes?cldRes.url:null
     publicId = cldRes?cldRes.public_id:null
     console.log(publicId)
+    console.log(image)
 
-    const add=await prisma.student.create({data:{name,age:parseInt(age),div,photoUrl,cloudinaryPublicId:publicId}})
+    const item=await prisma.projects.create({data:{heading,caption,languages,url,image,cloudinaryPublicId:publicId}})
     
-    res.status(200).json({message:"Added Successfully",photoUrl});
+    res.status(200).json({message:"Added Successfully",item});
   } catch (error) {
     console.log(error);
     res.json({
@@ -68,12 +69,17 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
 });
 
+// app.get("/student/:id",async (req,res)=>{
+//   const {id}
+//   try
+// })
+
 app.patch("/edit/:id",upload.single("image"),async (req,res)=>{
   const {id}=req.params
-  const {name,div,age}=req.body
+  const {heading,caption,languages,url}=req.body
   try
   {
-    const item=await prisma.student.findUnique({where:{id:parseInt(id)}})
+    const item=await prisma.projects.findUnique({where:{id:parseInt(id)}})
     if(req.file)
     {
       console.log("hi")
@@ -86,10 +92,10 @@ app.patch("/edit/:id",upload.single("image"),async (req,res)=>{
     var cldRes = await handleUpload(dataURI);
     console.log(cldRes)
     }
-    photoUrl=cldRes?cldRes.url:item.photoUrl
+    image=cldRes?cldRes.url:item.photoUrl
     publicId = cldRes?cldRes.public_id:item.cloudinaryPublicId
     console.log(publicId)
-    const update=await prisma.student.update({where:{id:parseInt(id)},data:{name,age:age?parseInt(age):item.age,div,photoUrl,cloudinaryPublicId:publicId}})
+    const update=await prisma.projects.update({where:{id:parseInt(id)},data:{heading,caption,languages,image,url,cloudinaryPublicId:publicId}})
     res.status(200).json({message:"Edited Successfully"});
   }
   catch(err)
