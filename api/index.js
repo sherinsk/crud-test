@@ -42,8 +42,10 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     }
 
     photoUrl=cldRes?cldRes.url:null
+    publicId = cldRes?cldRes.public_id:null
+    console.log(publicId)
 
-    const add=await prisma.student.create({data:{name,age:parseInt(age),div,photoUrl}})
+    const add=await prisma.student.create({data:{name,age:parseInt(age),div,photoUrl,cloudinaryPublicId:publicId}})
     
     res.status(200).json({message:"Added Successfully",photoUrl});
   } catch (error) {
