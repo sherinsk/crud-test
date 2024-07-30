@@ -123,14 +123,14 @@ app.delete("/delete/:id",async (req,res)=>{
   const {id}=req.params
   try
   {
-    const item=await prisma.student.findUnique({where:{id:parseInt(id)}})
+    const item=await prisma.projects.findUnique({where:{id:parseInt(id)}})
 
     if(item.cloudinaryPublicId)
     {
       await cloudinary.uploader.destroy(item.cloudinaryPublicId)
     }
 
-    await prisma.student.delete({
+    await prisma.projects.delete({
       where: { id: parseInt(id) },
   });
 
