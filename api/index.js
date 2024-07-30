@@ -29,6 +29,18 @@ const upload = Multer({
 const app = express();
 app.use(cors());
 
+app.get("/", async (req,res)=>{
+  try
+  {
+    res.status(200).json({message:"WOW, My API works"})
+  }
+  catch(err)
+  {
+    console.log(err)
+    res.status(500).json({message:err.message})
+  }
+})
+
 app.post("/upload", upload.single("image"), async (req, res) => {
     const {name,age,div}=req.body
   try {
