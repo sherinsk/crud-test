@@ -41,6 +41,19 @@ app.get("/", async (req,res)=>{
   }
 })
 
+app.get("/projects", async (req,res)=>{
+  try
+  {
+    const projects=await prisma.projects.findMany()
+    res.status(200).json({message:"projects fetched successfully",projects})
+  }
+  catch(err)
+  {
+    console.log(err)
+    res.status(500).json({message:err.message})
+  }
+})
+
 app.post("/upload", upload.single("image"), async (req, res) => {
     const {heading,caption,languages,url}=req.body
   try {
