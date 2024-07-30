@@ -68,6 +68,38 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
 });
 
+app.patch("/edit/:id",upload.single("image"),async (req,res)=>{
+  const {id}=req.params
+  const {name,div,age}=req.body
+  try
+  {
+    const item=await prisma.student.findUnique({where:{id:parseInt(id)}})
+    if(req.file)
+    {
+      console.log("hi")
+      if(item.cloudinaryPublicId)
+      {
+        await cloudinary.uploader.destroy(item.cloudinaryPublicId)
+      }
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+    var cldRes = await handleUpload(dataURI);
+    console.log(cldRes)
+    }
+    photoUrl=cldRes?cldRes.url:item.photoUrl
+    publicId = cldRes?cldRes.public_id:item.cloudinaryPublicId
+    console.log(publicId)
+    const update=await prisma.student.update({where:{id:parseInt(id)},data:{name,age:age?parseInt(age):item.age,div,photoUrl,cloudinaryPublicId:publicId}})
+    res.status(200).json({message:"Edited Successfully"});
+  }
+  catch(err)
+  {
+    console.log(err);
+    res.status(500).json({message: err.message})
+  }
+
+})
+
 app.delete("/delete/:id",async (req,res)=>{
   const {id}=req.params
   try
